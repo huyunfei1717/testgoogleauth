@@ -27,8 +27,8 @@ app.use(passport.session());
 
 // 配置Passport使用Google策略
 const gStrategy = new GoogleStrategy({
-  clientID: '90589332228-gs4leru0bie62gmmd82con0ndseb08l0.apps.googleusercontent.com',
-  clientSecret: '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',
+  clientID: 'xx',
+  clientSecret: 'xx',
   callbackURL: 'https://testgoogleauth-grp0.onrender.com/auth/google/callback',
   userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
 },
