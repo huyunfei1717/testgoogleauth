@@ -29,7 +29,7 @@ app.use(passport.session());
 const gStrategy = new GoogleStrategy({
   clientID: '90589332228-gs4leru0bie62gmmd82con0ndseb08l0.apps.googleusercontent.com',
   clientSecret: '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',
-  callbackURL: 'http://localhost:7777/auth/google/callback',
+  callbackURL: 'https://testgoogleauth-grp0.onrender.com/auth/google/callback',
   userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
 },
 (req, accessToken, refreshToken, profile, done) => {
