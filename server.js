@@ -37,9 +37,10 @@ const gStrategy = new GoogleStrategy({
   console.log("user id="+profile.id);
   // done(null, profile);
 });
-const Agent = new SocksProxyAgent(process.env.SOCKS5_PROXY||"socks5://127.0.0.1:7890");
+// 本地中国宝宝需要用这个
+// const Agent = new SocksProxyAgent(process.env.SOCKS5_PROXY||"socks5://127.0.0.1:7890");
 
-gStrategy._oauth2.setAgent(Agent);
+// gStrategy._oauth2.setAgent(Agent);
 
 passport.use(gStrategy);
 // 序列化用户session
