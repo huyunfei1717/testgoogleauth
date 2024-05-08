@@ -27,8 +27,8 @@ app.use(passport.session());
 
 // 配置Passport使用Google策略
 const gStrategy = new GoogleStrategy({
-  clientID: 'xx',
-  clientSecret: 'xx',
+  clientID: '90589332228-gs4leru0bie62gmmd82con0ndseb08l0.apps.googleusercontent.com',
+  clientSecret: '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',
   callbackURL: 'https://testgoogleauth-grp0.onrender.com/auth/google/callback',
   userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
 },
@@ -37,7 +37,7 @@ const gStrategy = new GoogleStrategy({
   console.log("user id="+profile.id);
   // done(null, profile);
 });
-// 本地中国宝宝需要用这个
+// 本地中国宝宝需要用这个,vpn代理配置，具体
 // const Agent = new SocksProxyAgent(process.env.SOCKS5_PROXY||"socks5://127.0.0.1:7890");
 
 // gStrategy._oauth2.setAgent(Agent);
@@ -61,6 +61,7 @@ app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'em
 // Google OAuth 2.0回调路由
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
+    console.log("google login success");
     // 登录成功后的重定向逻辑
     // 你可以在这里检查req.session.user来访问用户信息
     res.redirect('/');
