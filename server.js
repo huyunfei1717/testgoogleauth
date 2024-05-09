@@ -9,65 +9,84 @@ import { SocksProxyAgent } from 'socks-proxy-agent';
 import env from "dotenv";
 
 env.config();
-const app = express();
-app.get('/url', (req, res) => {
-  res.send('Hello World!');
-});
 
-// 设置session秘钥和存储
-app.use(session({
-  secret: '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',
-  resave: false,
-  saveUninitialized: false,
-}));
 
-// 初始化Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-// 配置Passport使用Google策略
+// 3. 配置 Google Strategy
 const gStrategy = new GoogleStrategy({
   clientID: '90589332228-gs4leru0bie62gmmd82con0ndseb08l0.apps.googleusercontent.com',
   clientSecret: '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',
-  callbackURL: 'https://testgoogleauth-grp0.onrender.com/auth/google/callback',
-  userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
-},
-(req, accessToken, refreshToken, profile, done) => {
-  // 使用Google profile信息创建用户session
-  console.log("user id="+profile.id);
-  // done(null, profile);
+  callbackURL: '/auth/google/callback'
+},(req, accessToken, refreshToken, profile, done) => {
+  /// 在这里处理用户登录成功后的逻辑
+    // 例如，将用户信息存储到数据库或 session 中
+    console.log('Logged in as:', profile.displayName);
+    done(null, profile); // 将用户信息传递给序列化函数
 });
-// 本地中国宝宝需要用这个,vpn代理配置，具体
-// const Agent = new SocksProxyAgent(process.env.SOCKS5_PROXY||"socks5://127.0.0.1:7890");
+//本地中国宝宝需要用这个,vpn代理配置，具体
+//const Agent = new SocksProxyAgent(process.env.SOCKS5_PROXY||"socks5://127.0.0.1:7890");
 
-// gStrategy._oauth2.setAgent(Agent);
+//gStrategy._oauth2.setAgent(Agent);
 
 passport.use(gStrategy);
-// 序列化用户session
+
+
+// 4. 序列化和反序列化用户
 passport.serializeUser((user, done) => {
-  console.log("serialize ok");
-  // done(null, user);
+    console.log("serializeUser");
+    done(null, user);
 });
 
-// 反序列化用户session
 passport.deserializeUser((obj, done) => {
-  console.log("deserialize ok");
-  // done(null, obj);
+    console.log("deserializeUser");
+    done(null, obj);
 });
 
-// Google登录路由
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+// 5. 创建 Express 应用
+const app = express();
 
-// Google OAuth 2.0回调路由
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    console.log("google login success");
-    // 登录成功后的重定向逻辑
-    // 你可以在这里检查req.session.user来访问用户信息
-    res.redirect('/');
-  });
+// 6. 配置中间件
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
-// 启动服务器
+// 7. 创建登录路由
+app.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+// 8. 创建回调路由
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    (req, res) => {
+        // 登录成功后的重定向逻辑
+        res.redirect('/index');
+        console.log("log success");
+    }
+);
+
+// 9. 启动服务器
 app.listen(7777, () => {
-  console.log('Server is running on port 7777');
+    console.log('Server is running on port 7777');
+});
+
+// 10. 配置登录成功后的日志
+// 创建 index 路由
+app.get('/index', (req, res) => {
+    // 检查用户是否已经通过鉴权
+    if (req.isAuthenticated()) {
+        // 用户已通过鉴权，可以继续处理请求
+        const user = req.user; // 获取用户信息
+        const name = user.displayName; // 用户名字
+        const email = user.emails[0].value; // 用户电子邮件地址
+
+        // 返回用户的名字和电子邮件地址
+        res.send(`Welcome, ${name}! Your email address is ${email}.`);
+    } else {
+        // 用户未通过鉴权，重定向到登录页面
+        res.redirect('/auth/google');
+    }
 });
